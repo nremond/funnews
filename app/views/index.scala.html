@@ -1,7 +1,14 @@
-@(message: String)
+@(message: String, freshNews:Seq[News])
 
-@main("Welcome to Play 2.0") {
-    
-    @play20.welcome(message)
+
+@main("Scala News") {
+       
+   <h1> @message </h1>
+   
+   @freshNews.map{ 
+   		case (news) => {
+   			<div> @news.title </div>
+   		}
+   }
     
 }
