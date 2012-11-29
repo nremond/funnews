@@ -1,7 +1,7 @@
-@(message: String, freshNews:Seq[News])
+@(user: Option[User], message: String, freshNews:Seq[News])
 
 
-@main("Scala News") {
+@main(user, "Scala News") {
        
    <h1> @message </h1>
    

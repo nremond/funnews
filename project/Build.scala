@@ -8,7 +8,9 @@ object ApplicationBuild extends Build {
     val appVersion      = "1.0-SNAPSHOT"
 
     val appDependencies = Seq(
-      // Add your project dependencies here,
+      // Redis driver
+      "net.debasishg" % "redisclient_2.9.2" % "2.8",
+      "org.sedis" % "sedis" % "1.0.1"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(

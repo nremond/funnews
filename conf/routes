@@ -3,7 +3,15 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /                           	controllers.Application.index
+GET		/login							controllers.Application.login
+GET		/logout							controllers.Application.logout(apisecret)
+
+# Authentication
+POST    /api/create_account        	 	controllers.Api.createAccount
+GET     /api/login                  	controllers.Api.login
+POST    /api/logout                 	controllers.Api.logout
+
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file               	controllers.Assets.at(path="/public", file)
