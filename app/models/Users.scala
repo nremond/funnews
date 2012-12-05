@@ -1,11 +1,15 @@
 package models
 
 import com.redis._
-
 import security.PBKDF2
 
-case class User(id: String, username: String, email: String, apisecret: String, karma: String, auth: AuthToken)
+import play.api.Logger
+
+case class User(id: String, username: String, email: String, apisecret: String, karma: Int, auth: AuthToken)
+case class UserActivity(posted: Long, comments: Long)
 case class AuthToken(token: String)
+
+class IncoherentDataException(err: String) extends Exception
 
 object Users {
 
@@ -14,13 +18,26 @@ object Users {
   /**
    * Return the user from the ID.
    */
-  def getUserById(id: Int) = r.hgetall("user:" + id)
+  private def getRawUserById(id: Int) = r.hgetall("user:" + id)
 
   /**
    * Return the user from the username.
    */
+  private def getRawUserByUsername(username: String) =
+    r.get(usernameToIdKey(username)) flatMap (id => getRawUserById(id.toInt))
+
   def getUserByUsername(username: String) =
-    r.get(usernameToIdKey(username)) flatMap (id => getUserById(id.toInt))
+    getRawUserByUsername(username) map (toUser(_))
+
+  def getUserActivity(user: User) =
+    r.pipeline(p =>
+      (p.zcard("user.posted:" + user.id), p.zcard("user.comments:" + user.id)))
+      .getOrElse(throw new IncoherentDataException("Posted&Comments")) match {
+        case posted :: comments :: Nil => {
+          UserActivity(posted.asInstanceOf[Option[Long]].get, comments.asInstanceOf[Option[Long]].get)
+        }
+        case _ => throw new IncoherentDataException("There must only these two values")
+      }
 
   case class AuthenticationDetails(auth: String, apiSecret: String)
 
@@ -29,7 +46,7 @@ object Users {
    * If so the auth token and form secret are returned, otherwise nil is returned.
    */
   def checkUserCredentials(username: String, password: String): Option[AuthenticationDetails] =
-    getUserByUsername(username) flatMap { user =>
+    getRawUserByUsername(username) flatMap { user =>
       val hash = secureHash(password, user("salt"))
       if (hash == user("password"))
         Some(AuthenticationDetails(user("auth"), user("apisecret")))
@@ -57,7 +74,7 @@ object Users {
           "salt" -> salt,
           "password" -> secureHash(login.password, salt),
           "ctime" -> currentTimeSec,
-          "karma" -> "TODO config shit",
+          "karma" -> 0, // TODO config shit
           "about" -> "",
           "email" -> "",
           "auth" -> authToken,
@@ -79,10 +96,8 @@ object Users {
   /**
    *  Try to authenticate the user
    */
-  def authUser(auth: AuthToken) = {
-    r.get("auth:" + auth.token) flatMap (id => r.hgetall("user:" + id)) map (
-      u => User(u("id"), u("username"), u("email"), u("apisecret"), u("karma"), AuthToken(u("auth"))))
-  }
+  def authUser(auth: AuthToken) =
+    r.get("auth:" + auth.token) flatMap (id => r.hgetall("user:" + id)) map (toUser(_))
 
   /**
    * Update the specified user authentication token with a random generated
@@ -101,6 +116,9 @@ object Users {
   }
 
   /////////////////////
+
+  private def toUser(u: Map[String, String]): User =
+    User(u("id"), u("username"), u("email"), u("apisecret"), u("karma").toInt, AuthToken(u("auth")))
 
   //TODO 1000=PBKDF2Iterations to put in condif
   private def secureHash(password: String, salt: String) = PBKDF2(password, salt, 1000, 160 / 8)
