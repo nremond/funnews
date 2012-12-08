@@ -11,10 +11,20 @@
         <script src="@routes.Assets.at("javascripts/app.js")" type="text/javascript"></script>
     </head>
     <body>
-    	<header>
-    		<h1><a href="@routes.Application.index"> Scala News </a></h1>
-    		    		
-    		<nav id="account">
+  		<div class="container">
+	    	<header>
+	    		<h1>
+	    			<a href="@routes.Application.index"> Scala News </a>
+	    		</h1>
+	    		<nav>
+	    			<a href="@routes.Application.index"> top </a>
+					<a href="/latest/0TODO"> latest </a>
+					<a href="@routes.Application.submit"> submit </a>
+					@if(user.isDefined) {
+						<a href="/repliesTODO"> replies </a>
+					}
+				</nav>    		
+	    		<nav id="account">
 	    		@user match { 
 	    			case None => {
 	    				<a href="@routes.Application.login"> Login / Register </a>	    			
@@ -24,10 +34,20 @@
 		    			<a href="@routes.Application.logout(u.apisecret)"> Logout </a>
 	    			}
 	    		}
-    		</nav>
-    		
-    		
-    	</header>
-        @content
+	    		</nav>
+	    	</header>
+	    	
+        	@content
+        </div>
+        
+		<footer>
+			<a href="http://github.com/nremond/funnews">source code</a> | 
+			<a href="/rss">rss feed</a>
+		</footer>
+        
+		@if(user.isDefined) { 
+	        <script>var apisecret = '@user.get.apisecret';</script>
+	    }
+        <script>setKeyboardNavigation();</script>
     </body>
 </html>

@@ -7,6 +7,7 @@ GET     /                           	controllers.Application.index
 GET		/login							controllers.Application.login
 GET		/logout							controllers.Application.logout(apisecret)
 GET		/user/:username					controllers.Application.userProfile(username:String)
+GET		/submit							controllers.Application.submit
 
 # Authentication
 POST    /api/create_account        	 	controllers.Api.createAccount

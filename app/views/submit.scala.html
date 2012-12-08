@@ -1,0 +1,39 @@
+@(user: User)
+
+
+@main(Some(user), "Scala News") {
+       
+	<div id="content">
+		<h2>Submit a new story</h2>
+		<div id="submitform">
+			<form name="f">
+				<input value="-1" type="hidden" name="news_id" />
+				<label for="title"> title </label>
+				<input value="" type="text" size="80" name="title" id="title" />
+				<br/>
+				<label for="url"> url </label>
+				<br/>
+				<input value="" type="text" size="60" name="url" id="url"/>
+				<br/>
+				or if you don't have an url type some text
+				<br/>
+				<label for="text"> text	</label>
+				<textarea cols="60" rows="10" name="text" id="text"></textarea>
+				<input value="Submit" type="button" name="do_submit" />
+			</form>
+		</div>
+		<div id="errormsg"/>
+		<p>Submitting news is simpler using the 
+			<a href="javascript:window.location=%22http://lamernews.com/submit?u=%22+encodeURIComponent(document.location)+%22&amp;t=%22+encodeURIComponent(document.title)">
+				bookmarklet
+			</a> 
+			(drag the link to your browser toolbar)
+		</p>
+		<script>
+            $(function() {
+                $("input[name=do_submit]").click(submit);
+            });
+        </script>
+	</div>
+    
+}

@@ -1,0 +1,33 @@
+@(user: Option[User], visitedUser: User, visitedUserActivity: UserActivity, gravatarUrl: String)
+
+
+@main(user, "Scala News") {
+<div id="content">
+	<div class="userinfo">
+		<span class="avatar">
+			<img src="@gravatarUrl">
+		</span> 
+		<h2>@visitedUser.username</h2><pre></pre>
+		<ul>
+			<li>
+				<b>created </b>6 days ago
+			</li>
+			<li>
+				<b>karma </b>@visitedUser.karma points
+			</li>
+			<li>
+				<b>posted news </b>@visitedUserActivity.posted
+			</li>
+			<li>
+				<b>posted comments </b>@visitedUserActivity.comments
+			</li>
+			<li>
+				<a href="/usercomments/@visitedUser.username/0">user comments</a>
+			</li>
+			<li>
+				<a href="/usernews/@visitedUser.username/0">user news</a>
+			</li>
+		</ul>
+	</div>
+</div>	
+}
